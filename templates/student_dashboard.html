@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Student Dashboard</title>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+    font-family:'Segoe UI';
+    background:#f4f6f9;
+    padding:30px;
+}
+.container{
+    max-width:900px;
+    margin:auto;
+    background:white;
+    padding:30px;
+    border-radius:15px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+h2{
+    text-align:center;
+}
+
+/* INFO */
+.info{
+    font-size:18px;
+    margin-bottom:20px;
+}
+
+/* PROGRESS BAR */
+.progress{
+    width:100%;
+    background:#ddd;
+    border-radius:10px;
+    overflow:hidden;
+    margin:10px 0;
+}
+.progress-bar{
+    height:20px;
+    text-align:center;
+    color:white;
+    font-size:12px;
+    line-height:20px;
+}
+
+/* TABLE */
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+th,td{
+    padding:10px;
+    border:1px solid #ccc;
+    text-align:center;
+}
+th{
+    background:#4e73df;
+    color:white;
+}
+
+/* LOGOUT */
+.logout{
+    display:block;
+    margin:20px auto;
+    width:120px;
+    padding:10px;
+    background:#e74a3b;
+    color:white;
+    text-align:center;
+    border-radius:8px;
+    text-decoration:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Student Dashboard</h2>
+
+<div class="info">
+<p><b>Roll No:</b> {{ roll_no }}</p>
+<p><b>Total Present:</b> {{ total_present }}</p>
+<p><b>Total Days:</b> {{ total_days }}</p>
+<p><b>Attendance %:</b> {{ attendance_percent }}%</p>
+</div>
+
+<!-- 🔥 Progress Bar -->
+<div class="progress">
+<div class="progress-bar"
+     style="width: {{ attendance_percent }}%;
+            background: {{ 'green' if attendance_percent >= 75 else 'red' }};">
+{{ attendance_percent }}%
+</div>
+</div>
+
+<!-- 🔥 Chart -->
+<div style="width:300px; height:300px; margin:auto;">
+    <canvas id="chart"></canvas>
+</div>
+
+<h3>Attendance Records</h3>
+
+<table>
+<tr>
+<th>Date</th>
+<th>Time</th>
+<th>Status</th>
+</tr>
+
+{% for row in records %}
+<tr>
+<td>{{ row['date'] }}</td>
+<td>{{ row['time'] }}</td>
+<td>{{ row['status'] }}</td>
+</tr>
+{% endfor %}
+
+</table>
+
+<a href="/logout" class="logout">Logout</a>
+</div>
+
+<!-- 🔥 Chart Script -->
+<script>
+const present = {{ total_present }};
+const total = {{ total_days }};
+const absent = total - present;
+
+new Chart(document.getElementById('chart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Present', 'Absent'],
+        datasets: [{
+            data: [present, absent],
+            backgroundColor: ['#4e73df', '#e74a3b']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+setInterval(() => {
+    location.reload();
+}, 5000);
+
+</script>
+
+</body>
+</html>

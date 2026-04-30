@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Attendance System</title>
+
+<style>
+body{
+    font-family:'Segoe UI';
+    background:#f4f6f9;
+    margin:0;
+    text-align:center;
+}
+
+/* HEADER */
+.header{
+    background:#4e73df;
+    color:white;
+    padding:15px;
+    font-size:22px;
+    font-weight:bold;
+    position:relative;
+}
+
+/* BACK ARROW */
+.back-arrow{
+    position:absolute;
+    left:20px;
+    top:10px;
+    font-size:30px;
+    text-decoration:none;
+    color:white;
+    background:rgba(255,255,255,0.2);
+    padding:5px 12px;
+    border-radius:50%;
+}
+
+/* BUTTONS */
+.controls{
+    margin:20px;
+}
+
+button{
+    padding:12px 25px;
+    margin:10px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:15px;
+    transition:0.3s;
+}
+
+.start{ background:#1cc88a; color:white; }
+.stop{ background:#e74a3b; color:white; }
+.download{ background:#4e73df; color:white; }
+
+button:hover{
+    transform:scale(1.05);
+}
+
+/* CAMERA */
+img{
+    border-radius:12px;
+    border:4px solid #4e73df;
+    margin-top:10px;
+}
+
+/* TABLE */
+table{
+    margin:auto;
+    margin-top:30px;
+    border-collapse:collapse;
+    width:85%;
+    background:white;
+    box-shadow:0 4px 12px rgba(0,0,0,0.1);
+    border-radius:10px;
+    overflow:hidden;
+}
+
+th,td{
+    padding:12px;
+    text-align:center;
+}
+
+th{
+    background:#4e73df;
+    color:white;
+}
+
+tr:nth-child(even){
+    background:#f2f2f2;
+}
+
+/* LOGOUT */
+.logout{
+    display:inline-block;
+    margin:20px;
+    padding:10px 20px;
+    background:#e74a3b;
+    color:white;
+    text-decoration:none;
+    border-radius:8px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <a href="/landing" class="back-arrow">←</a>
+    Face Recognition Attendance
+</div>
+
+<div class="controls">
+    <button class="start" onclick="startCamera()">Start Camera</button>
+    <button class="stop" onclick="stopCamera()">Stop Camera</button>
+    <a href="/download"><button class="download">Download Excel</button></a>
+</div>
+
+<img id="video" width="500" style="display:none">
+
+<h3>Live Attendance</h3>
+
+<table>
+<thead>
+<tr>
+<th>Roll</th>
+<th>Date</th>
+<th>Time</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody id="tableBody"></tbody>
+</table>
+
+<a href="/logout" class="logout">Logout</a>
+
+<script>
+function startCamera(){
+    fetch('/start_camera')
+    .then(()=>{
+        document.getElementById("video").src="/video";
+        document.getElementById("video").style.display="block";
+    });
+}
+
+function stopCamera(){
+    fetch('/stop_camera')
+    .then(()=>{
+        document.getElementById("video").style.display="none";
+    });
+}
+
+function loadAttendance(){
+    fetch('/get_attendance')
+    .then(res=>res.json())
+    .then(data=>{
+        let rows="";
+        data.data.forEach(r=>{
+            rows += `<tr>
+                <td>${r.roll_no}</td>
+                <td>${r.date}</td>
+                <td>${r.time}</td>
+                <td>${r.status}</td>
+            </tr>`;
+        });
+        document.getElementById("tableBody").innerHTML=rows;
+    });
+}
+
+// 🔥 IMPORTANT
+loadAttendance();              // load immediately
+setInterval(loadAttendance, 3000);  // then refresh every 3 sec
+</script>
+
+</body>
+</html>
